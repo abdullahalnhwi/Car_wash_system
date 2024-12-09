@@ -37,13 +37,16 @@ if ($check_table->num_rows == 0) {
 $cars_sql = "SELECT c.*, u.employee_name 
              FROM client_cars c 
              JOIN users u ON c.employee_id = u.id 
-             WHERE c.car_type = ?
+             WHERE c.car_type = ? 
+             AND c.employee_id = ? 
              ORDER BY c.created_at DESC";
 $cars_stmt = $conn->prepare($cars_sql);
 if ($cars_stmt === false) {
     die('Error preparing statement: ' . $conn->error);
 }
-$cars_stmt->bind_param("s", $car_type);
+
+$user_id = $_SESSION['user_id'];
+$cars_stmt->bind_param("si", $car_type, $user_id);
 $cars_stmt->execute();
 $existing_cars = $cars_stmt->get_result();
 

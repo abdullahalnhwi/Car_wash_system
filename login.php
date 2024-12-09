@@ -26,9 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         exit;
     } else {
-        $_SESSION['login_error'] = "Invalid username or password!";
-        header("Location: login.php");
-        exit;
+        echo "Invalid username or password!";
     }
     $stmt->close();
 }
@@ -178,31 +176,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .error-message {
             color: #dc3545;
             background: rgba(220, 53, 69, 0.1);
-            border: 1px solid rgba(220, 53, 69, 0.3);
             padding: 0.8rem;
             border-radius: 10px;
             margin-bottom: 1rem;
             font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            animation: fadeInDown 0.5s ease;
+            display: none;
         }
 
-        .error-message i {
-            font-size: 1.1rem;
+        .error-message.show {
+            display: block;
+            animation: shake 0.5s ease-in-out;
         }
 
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
         }
     </style>
 </head>
@@ -210,15 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="container">
         <img src="img/logo.png" alt="Company Logo" class="logo">
         <h2>Welcome Back</h2>
-        <?php if (isset($_SESSION['login_error'])): ?>
-            <div class="error-message show">
-                <i class="fas fa-exclamation-circle"></i>
-                <?php 
-                echo $_SESSION['login_error'];
-                unset($_SESSION['login_error']);
-                ?>
-            </div>
-        <?php endif; ?>
+        <div class="error-message" id="error-message"></div>
         <form action="login.php" method="post">
             <div class="input-group">
                 <i class="fas fa-user"></i>

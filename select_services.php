@@ -51,12 +51,12 @@ while ($service = $services_result->fetch_assoc()) {
 }
 
 // After fetching car details, modify the query to get previous services
-$prev_services_sql = "SELECT o.services, o.arrival_time, o.total_amount 
-                      FROM orders o
+$prev_services_sql = "SELECT o.id, o.order_code, o.services, o.arrival_time, 
+                             o.total_amount, o.status, o.car_number 
+                      FROM orders o 
                       WHERE o.car_number = ? 
                       AND o.status = 'completed'
-                      ORDER BY o.arrival_time DESC 
-                      LIMIT 5";
+                      ORDER BY o.arrival_time DESC";
 $prev_services_stmt = $conn->prepare($prev_services_sql);
 $prev_services_stmt->bind_param("s", $car_details['car_number']);
 $prev_services_stmt->execute();
@@ -190,6 +190,135 @@ $prev_services_result = $prev_services_stmt->get_result();
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
         }
+
+        .previous-services-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            color: #00416A;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+
+        .prev-service-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .prev-service-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border: 1px solid #eee;
+        }
+
+        .prev-service-header {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-number {
+            background: #e8f5e9;
+            color: #4CAF50;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .service-date {
+            color: #666;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .service-amount {
+            color: #4CAF50;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .services-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .service-detail {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .service-detail i {
+            color: #4CAF50;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .reuse-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .reuse-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+        }
+
+        .view-details-btn {
+            background: #f8f9fa;
+            color: #00416A;
+            border: 1px solid #00416A;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .view-details-btn:hover {
+            background: #00416A;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -203,33 +332,57 @@ $prev_services_result = $prev_services_stmt->get_result();
             <p><strong>Phone:</strong> <?php echo htmlspecialchars($car_details['phone']); ?></p>
         </div>
         
-        <div class="previous-services">
-            <h3><i class="fas fa-history"></i> Previous Services</h3>
-            <?php if ($prev_services_result && $prev_services_result->num_rows > 0): ?>
-                <div class="prev-services-grid">
-                    <?php while ($order = $prev_services_result->fetch_assoc()): ?>
-                        <div class="prev-service-item">
-                            <div class="prev-service-name">
-                                <?php 
-                                    // The services field might be stored as JSON or comma-separated string
-                                    $services = json_decode($order['services'], true) ?: explode(',', $order['services']);
-                                    if (is_array($services)) {
-                                        echo htmlspecialchars(implode(', ', $services));
-                                    } else {
-                                        echo htmlspecialchars($order['services']);
-                                    }
-                                ?>
-                            </div>
-                            <div class="prev-service-details">
-                                <span class="prev-service-price"><?php echo number_format($order['total_amount'], 3); ?> OMR</span>
-                                <span class="prev-service-date"><?php echo date('d M Y', strtotime($order['arrival_time'])); ?></span>
-                            </div>
+        <div class="previous-services-section">
+            <h3 class="section-title">
+                <i class="fas fa-history"></i>
+                Previous Services History
+            </h3>
+            
+            <div class="prev-service-list">
+                <?php if ($prev_services_result && $prev_services_result->num_rows > 0): 
+                    while ($order = $prev_services_result->fetch_assoc()):
+                        $services = json_decode($order['services'], true);
+                ?>
+                    <div class="prev-service-item">
+                        <div class="prev-service-header">
+                            <span class="order-number">
+                                #<?php echo htmlspecialchars($order['order_code']); ?>
+                            </span>
+                            <span class="service-date">
+                                <i class="far fa-calendar-alt"></i>
+                                <?php echo date('l, d M Y - h:i A', strtotime($order['arrival_time'])); ?>
+                            </span>
+                            <span class="service-amount">
+                                <?php echo number_format($order['total_amount'], 3); ?> OMR
+                            </span>
                         </div>
-                    <?php endwhile; ?>
-                </div>
-            <?php else: ?>
-                <p class="no-services">No previous services found for this car.</p>
-            <?php endif; ?>
+
+                        <div class="services-details">
+                            <?php foreach ($services as $service): ?>
+                                <div class="service-detail">
+                                    <i class="fas fa-check-circle"></i>
+                                    <?php echo htmlspecialchars($service); ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button type="button" class="view-details-btn" 
+                                    onclick="window.location.href='view_order.php?id=<?php echo $order['id']; ?>'">
+                                <i class="fas fa-eye"></i> View Details
+                            </button>
+                            <button type="button" class="reuse-btn" 
+                                    onclick="reselectServices(<?php echo htmlspecialchars(json_encode($services)); ?>)">
+                                <i class="fas fa-redo-alt"></i> Use These Services
+                            </button>
+                        </div>
+                    </div>
+                <?php 
+                    endwhile;
+                else: ?>
+                    <p class="no-services">No previous services found for this car.</p>
+                <?php endif; ?>
+            </div>
         </div>
 
         <form id="servicesForm" action="process_services.php" method="POST">
@@ -294,6 +447,49 @@ $prev_services_result = $prev_services_stmt->get_result();
             });
             
             document.getElementById('totalAmount').textContent = total.toFixed(3);
+        }
+
+        function reselectServices(previousServices) {
+            // Uncheck all services first
+            document.querySelectorAll('.service-item input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+                checkbox.closest('.service-item').classList.remove('selected');
+            });
+
+            // Select the previous services
+            document.querySelectorAll('.service-item').forEach(item => {
+                const serviceName = item.querySelector('.service-details div').textContent.trim();
+                if (previousServices.includes(serviceName)) {
+                    const checkbox = item.querySelector('input[type="checkbox"]');
+                    checkbox.checked = true;
+                    item.classList.add('selected');
+                }
+            });
+
+            // Update total and scroll to services section
+            updateTotal();
+            document.querySelector('.services-container').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+
+            // Show confirmation message
+            const message = document.createElement('div');
+            message.className = 'alert alert-success';
+            message.style.position = 'fixed';
+            message.style.top = '20px';
+            message.style.right = '20px';
+            message.style.padding = '15px';
+            message.style.borderRadius = '10px';
+            message.style.backgroundColor = '#4CAF50';
+            message.style.color = 'white';
+            message.style.zIndex = '1000';
+            message.innerHTML = '<i class="fas fa-check-circle"></i> Previous services selected!';
+            document.body.appendChild(message);
+
+            setTimeout(() => {
+                message.remove();
+            }, 3000);
         }
     </script>
 </body>
