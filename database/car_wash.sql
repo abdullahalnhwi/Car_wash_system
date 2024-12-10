@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 10, 2024 at 10:06 PM
+-- Generation Time: Dec 10, 2024 at 10:57 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -182,9 +182,23 @@ INSERT INTO `attendance` (`id`, `user_id`, `check_in_time`) VALUES
 CREATE TABLE `booked_slots` (
   `id` int(11) NOT NULL,
   `order_id` int(11) NOT NULL,
-  `booking_datetime` datetime NOT NULL,
+  `slot_datetime` datetime NOT NULL,
+  `status` enum('booked','completed','cancelled') DEFAULT 'booked',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `booked_slots`
+--
+
+INSERT INTO `booked_slots` (`id`, `order_id`, `slot_datetime`, `status`, `created_at`) VALUES
+(1, 298, '2024-12-11 01:07:21', 'booked', '2024-12-10 21:07:21'),
+(2, 299, '2024-12-11 01:09:10', 'booked', '2024-12-10 21:09:10'),
+(3, 299, '2024-12-10 08:00:00', 'booked', '2024-12-10 21:09:10'),
+(4, 300, '2024-12-11 01:09:20', 'booked', '2024-12-10 21:09:20'),
+(5, 300, '2024-12-10 08:30:00', 'booked', '2024-12-10 21:09:20'),
+(6, 301, '2024-12-11 01:50:48', 'booked', '2024-12-10 21:50:48'),
+(7, 301, '2024-12-10 09:00:00', 'booked', '2024-12-10 21:50:48');
 
 -- --------------------------------------------------------
 
@@ -251,6 +265,7 @@ INSERT INTO `categories` (`id`, `name`, `created_at`, `car_type`, `service_level
 CREATE TABLE `client_cars` (
   `id` int(11) NOT NULL,
   `employee_id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
   `car_number` varchar(20) NOT NULL,
   `car_name` varchar(100) NOT NULL,
   `car_type` enum('saloon','4wheel') NOT NULL,
@@ -264,11 +279,12 @@ CREATE TABLE `client_cars` (
 -- Dumping data for table `client_cars`
 --
 
-INSERT INTO `client_cars` (`id`, `employee_id`, `car_number`, `car_name`, `car_type`, `created_at`, `updated_at`, `client_name`, `phone`) VALUES
-(1, 19, 'dgffffg', 'dffgffd', 'saloon', '2024-12-08 20:06:22', '2024-12-08 20:06:22', 'fgeeerrr', '33445453'),
-(2, 19, 'AW99432', 'Ahmed car', 'saloon', '2024-12-08 20:43:01', '2024-12-08 20:43:01', 'user', '88458854'),
-(3, 19, 'wd33', 'sadasdf', '4wheel', '2024-12-08 20:44:06', '2024-12-08 20:44:06', 'user', '88458854'),
-(4, 20, '102', 'camry', 'saloon', '2024-12-09 18:19:57', '2024-12-09 18:19:57', 'ahmed', '99999999');
+INSERT INTO `client_cars` (`id`, `employee_id`, `user_id`, `car_number`, `car_name`, `car_type`, `created_at`, `updated_at`, `client_name`, `phone`) VALUES
+(1, 19, NULL, 'dgffffg', 'dffgffd', 'saloon', '2024-12-08 20:06:22', '2024-12-08 20:06:22', 'fgeeerrr', '33445453'),
+(2, 19, NULL, 'AW99432', 'Ahmed car', 'saloon', '2024-12-08 20:43:01', '2024-12-08 20:43:01', 'user', '88458854'),
+(3, 19, NULL, 'wd33', 'sadasdf', '4wheel', '2024-12-08 20:44:06', '2024-12-08 20:44:06', 'user', '88458854'),
+(4, 20, NULL, '102', 'camry', 'saloon', '2024-12-09 18:19:57', '2024-12-09 18:19:57', 'ahmed', '99999999'),
+(5, 22, NULL, '102 mm', 'camry', 'saloon', '2024-12-10 21:37:27', '2024-12-10 21:37:27', 'ahmed ', '99999999');
 
 -- --------------------------------------------------------
 
@@ -292,6 +308,29 @@ INSERT INTO `coupons` (`id`, `coupon_code`, `discount_amount`) VALUES
 (5, '3', 3.000),
 (6, '4', 4.000),
 (7, '5', 5.000);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `customer_profiles`
+--
+
+CREATE TABLE `customer_profiles` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `address` text DEFAULT NULL,
+  `preferred_contact` enum('whatsapp','phone','email') DEFAULT 'whatsapp',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `customer_profiles`
+--
+
+INSERT INTO `customer_profiles` (`id`, `user_id`, `email`, `address`, `preferred_contact`, `created_at`, `updated_at`) VALUES
+(1, 22, 'ss@sssss.com', NULL, 'whatsapp', '2024-12-10 21:36:18', '2024-12-10 21:36:18');
 
 -- --------------------------------------------------------
 
@@ -456,7 +495,38 @@ INSERT INTO `orders` (`id`, `client_car_id`, `order_details`, `qrcode_path`, `ca
 (294, 4, NULL, NULL, 'saloon', 'o', 'ahmed', NULL, '[]', '102', 'camry', '99999999', '2024-12-11 01:00:52', NULL, 0.000, NULL, 'ORD-2024-294', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL),
 (295, 4, NULL, NULL, 'saloon', 'o', 'ahmed', NULL, '[]', '102', 'camry', '99999999', '2024-12-11 01:01:27', NULL, 0.000, NULL, 'ORD-2024-295', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL),
 (296, 4, NULL, NULL, 'saloon', 'o', 'ahmed', NULL, '[]', '102', 'camry', '99999999', '2024-12-11 01:03:20', NULL, 0.000, NULL, 'ORD-2024-296', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL),
-(297, 4, NULL, NULL, 'saloon', 'o', 'ahmed', NULL, '[]', '102', 'camry', '99999999', '2024-12-11 01:05:23', NULL, 0.000, NULL, 'ORD-2024-297', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL);
+(297, 4, NULL, NULL, 'saloon', 'o', 'ahmed', NULL, '[]', '102', 'camry', '99999999', '2024-12-11 01:05:23', NULL, 0.000, NULL, 'ORD-2024-297', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL),
+(298, 4, NULL, NULL, 'saloon', 'o', 'ahmed', NULL, '[]', '102', 'camry', '99999999', '2024-12-11 01:07:21', NULL, 0.000, NULL, 'ORD-2024-298', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL),
+(299, 4, NULL, NULL, 'saloon', 'o', 'ahmed', NULL, '[]', '102', 'camry', '99999999', '2024-12-11 01:09:10', NULL, 0.000, NULL, 'ORD-2024-299', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL),
+(300, 4, NULL, NULL, 'saloon', 'o', 'ahmed', NULL, '[]', '102', 'camry', '99999999', '2024-12-11 01:09:20', NULL, 0.000, NULL, 'ORD-2024-300', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL),
+(301, 5, NULL, NULL, 'saloon', 'ab', 'ahmed ', NULL, '[\"Car wash insida and outside shampo ceramic \\/ \\u063a\\u0633\\u064a\\u0644 \\u0627\\u0644\\u0633\\u064a\\u0627\\u0631\\u0629 \\u0645\\u0646 \\u0627\\u0644\\u062f\\u0627\\u062e\\u0644 \\u0648 \\u0627\\u0644\\u062e\\u0627\\u0631\\u062c \\u0628\\u0634\\u0627\\u0645\\u0628\\u0648 \\u0633\\u064a\\u0631\\u0627\\u0645\\u064a\\u0643\",\"Car wash inside and outside \\/ \\u063a\\u0633\\u064a\\u0644 \\u0627\\u0644\\u0633\\u064a\\u0627\\u0631\\u0629 \\u0645\\u0646 \\u0627\\u0644\\u062f\\u0627\\u062e\\u0644 \\u0648 \\u0627\\u0644\\u062e\\u0627\\u0631\\u062c \"]', '102 mm', 'camry', '99999999', '2024-12-11 01:50:48', NULL, 3.500, NULL, 'ORD-2024-301', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL);
+
+--
+-- Triggers `orders`
+--
+DELIMITER $$
+CREATE TRIGGER `after_order_insert` AFTER INSERT ON `orders` FOR EACH ROW BEGIN
+    INSERT INTO booked_slots (order_id, slot_datetime)
+    VALUES (NEW.id, NEW.arrival_time);
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `after_order_update` AFTER UPDATE ON `orders` FOR EACH ROW BEGIN
+    IF NEW.arrival_time != OLD.arrival_time THEN
+        UPDATE booked_slots 
+        SET slot_datetime = NEW.arrival_time
+        WHERE order_id = NEW.id;
+    END IF;
+    
+    IF NEW.status = 'cancelled' THEN
+        UPDATE booked_slots
+        SET status = 'cancelled'
+        WHERE order_id = NEW.id;
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -534,7 +604,7 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `role` enum('manager','employee') NOT NULL,
+  `role` enum('manager','employee','customer') NOT NULL DEFAULT 'customer',
   `phone` varchar(15) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `employee_name` varchar(100) NOT NULL,
@@ -558,7 +628,9 @@ INSERT INTO `users` (`id`, `username`, `password`, `role`, `phone`, `email`, `em
 (16, 'Robi', '$2y$10$1D2OOlYmfiMTDvTJA5rv/uTeuZe3jlTYsjU3KBUjTvIk4GVjh8VLG', 'employee', NULL, NULL, 'Robi', 'uploads/4F7936AB-0E75-402A-A2BA-8E19CE47E17B.jpeg', 0.00, NULL),
 (18, 'aha', '$2y$10$UxmRdQyonXxdECDYRG.tpeCJ3KWGYf8kIeGzRs0Xlgv0t/2hiTmuC', 'employee', NULL, NULL, 'ahmed2', 'uploads/Blue Flat Illustrative Human Artificial Intelligence Technology Logo.png', 0.00, NULL),
 (19, 'user', '$2y$10$Y3S8bP/TCT/OhMeW/FhOR.zAVLzT2V4nIYLRrQds5FHalCQMnw9oW', 'employee', '88458854', 'gsdfgsd@gma.com', 'user', NULL, 0.00, NULL),
-(20, 'user1', '$2y$10$dazDQ07S6WOxwDADWQZK0OOMOYlB/6qH3CXYfrA8zL8jCwwkLfPgG', 'employee', '99999999', 'ss@sss.com', 'o', NULL, 0.00, NULL);
+(20, 'user1', '$2y$10$dazDQ07S6WOxwDADWQZK0OOMOYlB/6qH3CXYfrA8zL8jCwwkLfPgG', 'employee', '99999999', 'ss@sss.com', 'o', NULL, 0.00, NULL),
+(21, 'user2', '$2y$10$MjJxSmUxLselzcnb9RRiteUSDhW40GUuUcHzZ3M6pP8HDiDOHES9G', 'employee', '99999999', 'sss@sss.com', 'abb', NULL, 0.00, NULL),
+(22, 'user3', '$2y$10$osYUeC8rFBN4xYK98Y5Th.Nvtjsr5iPmvxaGdePx0gFr/NyjzvBwK', 'customer', '99999999', 'ss@sssss.com', 'ab', NULL, 0.00, NULL);
 
 --
 -- Indexes for dumped tables
@@ -576,7 +648,7 @@ ALTER TABLE `attendance`
 --
 ALTER TABLE `booked_slots`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_booking_datetime` (`booking_datetime`),
+  ADD UNIQUE KEY `unique_slot_datetime` (`slot_datetime`),
   ADD KEY `order_id` (`order_id`);
 
 --
@@ -598,13 +670,21 @@ ALTER TABLE `categories`
 ALTER TABLE `client_cars`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `car_number` (`car_number`),
-  ADD KEY `employee_id` (`employee_id`);
+  ADD KEY `employee_id` (`employee_id`),
+  ADD KEY `client_cars_user_ibfk_1` (`user_id`);
 
 --
 -- Indexes for table `coupons`
 --
 ALTER TABLE `coupons`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `customer_profiles`
+--
+ALTER TABLE `customer_profiles`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `expenses`
@@ -680,7 +760,7 @@ ALTER TABLE `attendance`
 -- AUTO_INCREMENT for table `booked_slots`
 --
 ALTER TABLE `booked_slots`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `car_washes`
@@ -698,13 +778,19 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `client_cars`
 --
 ALTER TABLE `client_cars`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `coupons`
 --
 ALTER TABLE `coupons`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `customer_profiles`
+--
+ALTER TABLE `customer_profiles`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `expenses`
@@ -740,7 +826,7 @@ ALTER TABLE `messages`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=298;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=302;
 
 --
 -- AUTO_INCREMENT for table `services`
@@ -758,7 +844,7 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- Constraints for dumped tables
@@ -786,7 +872,14 @@ ALTER TABLE `car_washes`
 -- Constraints for table `client_cars`
 --
 ALTER TABLE `client_cars`
-  ADD CONSTRAINT `client_cars_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `client_cars_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `client_cars_user_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `customer_profiles`
+--
+ALTER TABLE `customer_profiles`
+  ADD CONSTRAINT `customer_profiles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `installments`
