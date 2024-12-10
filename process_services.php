@@ -92,6 +92,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $update_stmt->bind_param("si", $order_code, $order_id);
         $update_stmt->execute();
 
+        // After successfully creating the order
+        $booked_datetime = $_POST['selected_datetime'];
+
+        // Insert into booked_slots table
+        $insert_slot_sql = "INSERT INTO booked_slots (order_id, slot_datetime) VALUES (?, ?)";
+        $slot_stmt = $conn->prepare($insert_slot_sql);
+        $slot_stmt->bind_param("is", $order_id, $booked_datetime);
+        $slot_stmt->execute();
+
+        // Send response back to update UI
+        echo "<script>
+            if (window.opener && !window.opener.closed) {
+                window.opener.updateBookedSlots('" . $booked_datetime . "');
+            }
+        </script>";
+
         // Redirect to a success page or order details page
         header("Location: order_details.php?id=" . $order_id);
         exit;

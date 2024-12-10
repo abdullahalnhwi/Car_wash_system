@@ -2,14 +2,17 @@
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-if (!isset($_SESSION['employee_name'])) {
+
+// Get user role from session
+$role = $_SESSION['role'] ?? '';
+$user_name = $_SESSION['employee_name'] ?? '';
+$user_image = $_SESSION['image'] ?? '';
+
+// Redirect if not logged in
+if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit();
 }
-
-$employee_name = $_SESSION['employee_name'];
-$employee_image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['image'] : 'img/user_icong.png';
-$role = $_SESSION['role'];
 ?>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -136,28 +139,55 @@ $role = $_SESSION['role'];
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="index.php">
-                        <i class="fas fa-home"></i> Home
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="profile.php">
-                        <i class="fas fa-user"></i> Profile
-                    </a>
-                </li>
                 <?php if ($role == 'manager'): ?>
-                <li class="nav-item">
-                    <a class="nav-link" href="dashboard.php">
-                        <i class="fas fa-cog"></i> Settings
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="employees.php">
-                        <i class="fas fa-users"></i> Employees
-                    </a>
-                </li>
+                    <!-- Manager Navigation -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.php">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="employees.php">
+                            <i class="fas fa-users"></i> Employees
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="reports.php">
+                            <i class="fas fa-chart-bar"></i> Reports
+                        </a>
+                    </li>
+
+                <?php elseif ($role == 'employee'): ?>
+                    <!-- Employee Navigation -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="orders.php">
+                            <i class="fas fa-clipboard-list"></i> Orders
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="schedule.php">
+                            <i class="fas fa-calendar-alt"></i> Schedule
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="my_clients.php">
+                            <i class="fas fa-user-friends"></i> My Clients
+                        </a>
+                    </li>
                 <?php endif; ?>
+
+                <!-- Common Navigation Items -->
+                <li class="nav-item">
+                    <?php if ($role == 'customer'): ?>
+                        <a class="nav-link" href="customer_profile.php">
+                            <i class="fas fa-user"></i> Profile
+                        </a>
+                    <?php else: ?>
+                        <a class="nav-link" href="profile.php">
+                            <i class="fas fa-user"></i> Profile
+                        </a>
+                    <?php endif; ?>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link logout-link" href="logout.php">
                         <i class="fas fa-sign-out-alt"></i> Logout
@@ -165,8 +195,8 @@ $role = $_SESSION['role'];
                 </li>
                 <li class="nav-item">
                     <div class="employee-info">
-                        <img src="<?php echo htmlspecialchars($employee_image); ?>" alt="Employee Image" onerror="this.src='img/user_icong.png'">
-                        <span><?php echo htmlspecialchars($employee_name); ?></span>
+                        <img src="<?php echo htmlspecialchars($user_image); ?>" alt="User Image" onerror="this.src='img/user_icon.png'">
+                        <span><?php echo htmlspecialchars($user_name); ?></span>
                     </div>
                 </li>
             </ul>

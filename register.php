@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $employee_name = mysqli_real_escape_string($conn, $_POST['employee_name']);
     $phone = mysqli_real_escape_string($conn, $_POST['phone']);
     $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $role = 'employee'; // Default role for new registrations
+    $role = isset($_SESSION['is_admin']) ? 'employee' : 'customer';
     
     // Validation
     $errors = [];
@@ -59,6 +59,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->bind_param("ssssss", $username, $hashed_password, $employee_name, $role, $phone, $email);
         
         if ($stmt->execute()) {
+            // If it's a customer, create a customer profile
+            if ($role == 'customer') {
+                $user_id = $stmt->insert_id;
+                $stmt = $conn->prepare("INSERT INTO customer_profiles (user_id, email) VALUES (?, ?)");
+                $stmt->bind_param("is", $user_id, $email);
+                $stmt->execute();
+            }
+            
             $_SESSION['registration_success'] = true;
             header("Location: login.php");
             exit;

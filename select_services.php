@@ -61,6 +61,17 @@ $prev_services_stmt = $conn->prepare($prev_services_sql);
 $prev_services_stmt->bind_param("s", $car_details['car_number']);
 $prev_services_stmt->execute();
 $prev_services_result = $prev_services_stmt->get_result();
+
+// Fetch all booked slots from the database
+$booked_slots_sql = "SELECT slot_datetime 
+                     FROM booked_slots 
+                     WHERE status != 'cancelled'";
+$booked_slots_result = $conn->query($booked_slots_sql);
+$booked_slots = [];
+
+while ($slot = $booked_slots_result->fetch_assoc()) {
+    $booked_slots[] = $slot['slot_datetime'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -319,6 +330,105 @@ $prev_services_result = $prev_services_stmt->get_result();
             background: #00416A;
             color: white;
         }
+
+        .booking-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .date-time-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .date-picker {
+            padding: 15px;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            font-size: 1rem;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+        }
+
+        .time-slot {
+            padding: 12px;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-align: center;
+            background: #e8f5e9;
+            border: 2px solid #4CAF50;
+            color: #4CAF50;
+            white-space: pre-line;
+        }
+
+        .time-slot.booked {
+            background: #ffebee;
+            border-color: #ff5252;
+            color: #ff5252;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .time-slot.selected {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .time-slot:hover:not(.booked) {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .available-color {
+            background: #e8f5e9;
+            border: 2px solid #4CAF50;
+        }
+
+        .booked-color {
+            background: #ffebee;
+            border: 2px solid #ff5252;
+        }
+
+        .selected-color {
+            background: #4CAF50;
+            border: 2px solid #4CAF50;
+        }
     </style>
 </head>
 <body>
@@ -385,8 +495,44 @@ $prev_services_result = $prev_services_stmt->get_result();
             </div>
         </div>
 
+        <div class="booking-section">
+            <h3 class="section-title">
+                <i class="far fa-calendar-alt"></i>
+                Select Date & Time
+            </h3>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color available-color"></div>
+                    <span>Available</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color booked-color"></div>
+                    <span>Booked</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color selected-color"></div>
+                    <span>Selected</span>
+                </div>
+            </div>
+
+            <div class="date-time-grid">
+                <input type="date" 
+                       id="appointment-date" 
+                       class="date-picker"
+                       min="<?php echo date('Y-m-d'); ?>"
+                       value="<?php echo date('Y-m-d'); ?>"
+                       onchange="generateTimeSlots(this.value)">
+
+                <div class="time-slots" id="time-slots-container">
+                    <!-- Time slots will be generated here -->
+                </div>
+            </div>
+        </div>
+
         <form id="servicesForm" action="process_services.php" method="POST">
             <input type="hidden" name="car_id" value="<?php echo $car_id; ?>">
+            <input type="hidden" name="selected_datetime" id="selected-datetime">
             
             <div class="services-container">
                 <?php foreach ($categories as $category_name => $category_data): ?>
@@ -490,6 +636,71 @@ $prev_services_result = $prev_services_stmt->get_result();
             setTimeout(() => {
                 message.remove();
             }, 3000);
+        }
+
+        const bookedSlots = <?php echo json_encode($booked_slots); ?>;
+        let selectedSlot = null;
+
+        function generateTimeSlots(selectedDate) {
+            const container = document.getElementById('time-slots-container');
+            container.innerHTML = '';
+            
+            // Generate slots from 8 AM to 10 PM
+            for (let hour = 8; hour < 22; hour++) {
+                for (let minute of ['00', '30']) {
+                    const timeString = `${hour.toString().padStart(2, '0')}:${minute}`;
+                    const dateTimeString = `${selectedDate} ${timeString}:00`;
+                    
+                    // Check if this slot is booked
+                    const isBooked = bookedSlots.includes(dateTimeString);
+                    
+                    const slot = document.createElement('div');
+                    slot.className = 'time-slot';
+                    
+                    if (isBooked) {
+                        slot.className += ' booked';
+                    }
+                    
+                    slot.textContent = formatTime(timeString);
+                    slot.dataset.datetime = dateTimeString;
+                    
+                    if (!isBooked) {
+                        slot.onclick = () => selectTimeSlot(slot);
+                    }
+                    
+                    container.appendChild(slot);
+                }
+            }
+        }
+
+        function selectTimeSlot(element) {
+            if (selectedSlot) {
+                selectedSlot.classList.remove('selected');
+            }
+            
+            element.classList.add('selected');
+            selectedSlot = element;
+            
+            document.getElementById('selected-datetime').value = element.dataset.datetime;
+        }
+
+        function formatTime(timeString) {
+            const [hours, minutes] = timeString.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const hour12 = hour % 12 || 12;
+            return `${hour12}:${minutes}\n${ampm}`;
+        }
+
+        // Generate initial time slots for today
+        document.addEventListener('DOMContentLoaded', function() {
+            generateTimeSlots(document.getElementById('appointment-date').value);
+        });
+
+        // Add this function to update booked slots after successful booking
+        function updateBookedSlots(newBookedDateTime) {
+            bookedSlots.push(newBookedDateTime);
+            generateTimeSlots(document.getElementById('appointment-date').value);
         }
     </script>
 </body>

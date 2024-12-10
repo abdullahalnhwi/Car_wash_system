@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 09, 2024 at 02:58 PM
+-- Generation Time: Dec 10, 2024 at 10:06 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -176,6 +176,19 @@ INSERT INTO `attendance` (`id`, `user_id`, `check_in_time`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `booked_slots`
+--
+
+CREATE TABLE `booked_slots` (
+  `id` int(11) NOT NULL,
+  `order_id` int(11) NOT NULL,
+  `booking_datetime` datetime NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `car_washes`
 --
 
@@ -254,7 +267,8 @@ CREATE TABLE `client_cars` (
 INSERT INTO `client_cars` (`id`, `employee_id`, `car_number`, `car_name`, `car_type`, `created_at`, `updated_at`, `client_name`, `phone`) VALUES
 (1, 19, 'dgffffg', 'dffgffd', 'saloon', '2024-12-08 20:06:22', '2024-12-08 20:06:22', 'fgeeerrr', '33445453'),
 (2, 19, 'AW99432', 'Ahmed car', 'saloon', '2024-12-08 20:43:01', '2024-12-08 20:43:01', 'user', '88458854'),
-(3, 19, 'wd33', 'sadasdf', '4wheel', '2024-12-08 20:44:06', '2024-12-08 20:44:06', 'user', '88458854');
+(3, 19, 'wd33', 'sadasdf', '4wheel', '2024-12-08 20:44:06', '2024-12-08 20:44:06', 'user', '88458854'),
+(4, 20, '102', 'camry', 'saloon', '2024-12-09 18:19:57', '2024-12-09 18:19:57', 'ahmed', '99999999');
 
 -- --------------------------------------------------------
 
@@ -433,7 +447,16 @@ INSERT INTO `orders` (`id`, `client_car_id`, `order_details`, `qrcode_path`, `ca
 (285, 2, NULL, NULL, 'saloon', 'user', 'user', NULL, '[\"inside and outside polishing\\/\\u062a\\u0644\\u0645\\u064a\\u0639 \\u062f\\u0627\\u062e\\u0644\\u064a \\u0648 \\u062e\\u0627\\u0631\\u062c\\u064a\"]', 'AW99432', 'Ahmed car', '88458854', '2024-12-09 01:53:58', NULL, 35.000, NULL, 'ORD-2024-285', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL),
 (286, 2, NULL, NULL, 'saloon', 'user', 'user', NULL, '[\"inside and outside polishing\\/\\u062a\\u0644\\u0645\\u064a\\u0639 \\u062f\\u0627\\u062e\\u0644\\u064a \\u0648 \\u062e\\u0627\\u0631\\u062c\\u064a\",\"Car wash inside and outside \\/ \\u063a\\u0633\\u064a\\u0644 \\u0627\\u0644\\u0633\\u064a\\u0627\\u0631\\u0629 \\u0645\\u0646 \\u0627\\u0644\\u062f\\u0627\\u062e\\u0644 \\u0648 \\u0627\\u0644\\u062e\\u0627\\u0631\\u062c \"]', 'AW99432', 'Ahmed car', '88458854', '2024-12-09 02:00:32', NULL, 36.500, NULL, 'ORD-2024-286', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL),
 (287, 1, NULL, NULL, 'saloon', 'user', 'fgeeerrr', NULL, '[\"inside and outside polishing\\/\\u062a\\u0644\\u0645\\u064a\\u0639 \\u062f\\u0627\\u062e\\u0644\\u064a \\u0648 \\u062e\\u0627\\u0631\\u062c\\u064a\"]', 'dgffffg', 'dffgffd', '88458854', '2024-12-09 02:33:11', NULL, 45.000, NULL, 'ORD-2024-287', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL),
-(288, 1, NULL, NULL, 'saloon', 'user', 'fgeeerrr', NULL, '[\"inside and outside polishing\\/\\u062a\\u0644\\u0645\\u064a\\u0639 \\u062f\\u0627\\u062e\\u0644\\u064a \\u0648 \\u062e\\u0627\\u0631\\u062c\\u064a\",\"Basic parts of the vehicle\\/\\u0627\\u0644\\u0623\\u062c\\u0632\\u0627\\u0621 \\u0627\\u0644\\u0623\\u0633\\u0627\\u0633\\u064a\\u0629 \\u0645\\u0646 \\u0627\\u0644\\u0645\\u0631\\u0643\\u0628\\u0629\",\"Basic parts of the vehicle\\/\\u0627\\u0644\\u0623\\u062c\\u0632\\u0627\\u0621 \\u0627\\u0644\\u0623\\u0633\\u0627\\u0633\\u064a\\u0629 \\u0645\\u0646 \\u0627\\u0644\\u0645\\u0631\\u0643\\u0628\\u0629\"]', 'dgffffg', 'dffgffd', '88458854', '2024-12-09 02:34:23', NULL, 95.000, NULL, 'ORD-2024-288', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL);
+(288, 1, NULL, NULL, 'saloon', 'user', 'fgeeerrr', NULL, '[\"inside and outside polishing\\/\\u062a\\u0644\\u0645\\u064a\\u0639 \\u062f\\u0627\\u062e\\u0644\\u064a \\u0648 \\u062e\\u0627\\u0631\\u062c\\u064a\",\"Basic parts of the vehicle\\/\\u0627\\u0644\\u0623\\u062c\\u0632\\u0627\\u0621 \\u0627\\u0644\\u0623\\u0633\\u0627\\u0633\\u064a\\u0629 \\u0645\\u0646 \\u0627\\u0644\\u0645\\u0631\\u0643\\u0628\\u0629\",\"Basic parts of the vehicle\\/\\u0627\\u0644\\u0623\\u062c\\u0632\\u0627\\u0621 \\u0627\\u0644\\u0623\\u0633\\u0627\\u0633\\u064a\\u0629 \\u0645\\u0646 \\u0627\\u0644\\u0645\\u0631\\u0643\\u0628\\u0629\"]', 'dgffffg', 'dffgffd', '88458854', '2024-12-09 02:34:23', NULL, 95.000, NULL, 'ORD-2024-288', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL),
+(289, 4, NULL, NULL, 'saloon', 'o', 'ahmed', NULL, '[\"Car wash insida and outside shampo ceramic \\/ \\u063a\\u0633\\u064a\\u0644 \\u0627\\u0644\\u0633\\u064a\\u0627\\u0631\\u0629 \\u0645\\u0646 \\u0627\\u0644\\u062f\\u0627\\u062e\\u0644 \\u0648 \\u0627\\u0644\\u062e\\u0627\\u0631\\u062c \\u0628\\u0634\\u0627\\u0645\\u0628\\u0648 \\u0633\\u064a\\u0631\\u0627\\u0645\\u064a\\u0643\",\"Car wash insida and outside shampo ceramic \\/ \\u063a\\u0633\\u064a\\u0644 \\u0627\\u0644\\u0633\\u064a\\u0627\\u0631\\u0629 \\u0645\\u0646 \\u0627\\u0644\\u062f\\u0627\\u062e\\u0644 \\u0648 \\u0627\\u0644\\u062e\\u0627\\u0631\\u062c \\u0628\\u0634\\u0627\\u0645\\u0628\\u0648 \\u0633\\u064a\\u0631\\u0627\\u0645\\u064a\\u0643\"]', '102', 'camry', '99999999', '2024-12-09 22:26:54', NULL, 4.500, NULL, 'ORD-2024-289', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'completed', 1, '2024-12-09 22:47:33', NULL, NULL),
+(290, 4, NULL, NULL, 'saloon', 'o', 'ahmed', NULL, '[\"Car wash insida and outside shampo ceramic \\/ \\u063a\\u0633\\u064a\\u0644 \\u0627\\u0644\\u0633\\u064a\\u0627\\u0631\\u0629 \\u0645\\u0646 \\u0627\\u0644\\u062f\\u0627\\u062e\\u0644 \\u0648 \\u0627\\u0644\\u062e\\u0627\\u0631\\u062c \\u0628\\u0634\\u0627\\u0645\\u0628\\u0648 \\u0633\\u064a\\u0631\\u0627\\u0645\\u064a\\u0643\",\"Car wash insida and outside shampo ceramic \\/ \\u063a\\u0633\\u064a\\u0644 \\u0627\\u0644\\u0633\\u064a\\u0627\\u0631\\u0629 \\u0645\\u0646 \\u0627\\u0644\\u062f\\u0627\\u062e\\u0644 \\u0648 \\u0627\\u0644\\u062e\\u0627\\u0631\\u062c \\u0628\\u0634\\u0627\\u0645\\u0628\\u0648 \\u0633\\u064a\\u0631\\u0627\\u0645\\u064a\\u0643\"]', '102', 'camry', '99999999', '2024-12-11 00:45:09', NULL, 4.500, NULL, 'ORD-2024-290', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL),
+(291, 4, NULL, NULL, 'saloon', 'o', 'ahmed', NULL, '[]', '102', 'camry', '99999999', '2024-12-11 00:45:47', NULL, 0.000, NULL, 'ORD-2024-291', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL),
+(292, 4, NULL, NULL, 'saloon', 'o', 'ahmed', NULL, '[]', '102', 'camry', '99999999', '2024-12-11 00:54:47', NULL, 0.000, NULL, 'ORD-2024-292', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL),
+(293, 4, NULL, NULL, 'saloon', 'o', 'ahmed', NULL, '[]', '102', 'camry', '99999999', '2024-12-11 00:55:21', NULL, 0.000, NULL, 'ORD-2024-293', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL),
+(294, 4, NULL, NULL, 'saloon', 'o', 'ahmed', NULL, '[]', '102', 'camry', '99999999', '2024-12-11 01:00:52', NULL, 0.000, NULL, 'ORD-2024-294', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL),
+(295, 4, NULL, NULL, 'saloon', 'o', 'ahmed', NULL, '[]', '102', 'camry', '99999999', '2024-12-11 01:01:27', NULL, 0.000, NULL, 'ORD-2024-295', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL),
+(296, 4, NULL, NULL, 'saloon', 'o', 'ahmed', NULL, '[]', '102', 'camry', '99999999', '2024-12-11 01:03:20', NULL, 0.000, NULL, 'ORD-2024-296', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL),
+(297, 4, NULL, NULL, 'saloon', 'o', 'ahmed', NULL, '[]', '102', 'camry', '99999999', '2024-12-11 01:05:23', NULL, 0.000, NULL, 'ORD-2024-297', 0.000, 0.000, 0, NULL, 0.000, 0.000, 'pending', 0, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -534,7 +557,8 @@ INSERT INTO `users` (`id`, `username`, `password`, `role`, `phone`, `email`, `em
 (15, 'Semon', '$2y$10$NDRluzmoVf/aebHpwTlQ1OAtg7y4HaG8cFk4crRGhQLcg7nvJys9a', 'employee', NULL, NULL, 'Semon', 'uploads/FAEEF1EC-101C-4E7A-BAB7-5B111353CA16.jpeg', 0.00, NULL),
 (16, 'Robi', '$2y$10$1D2OOlYmfiMTDvTJA5rv/uTeuZe3jlTYsjU3KBUjTvIk4GVjh8VLG', 'employee', NULL, NULL, 'Robi', 'uploads/4F7936AB-0E75-402A-A2BA-8E19CE47E17B.jpeg', 0.00, NULL),
 (18, 'aha', '$2y$10$UxmRdQyonXxdECDYRG.tpeCJ3KWGYf8kIeGzRs0Xlgv0t/2hiTmuC', 'employee', NULL, NULL, 'ahmed2', 'uploads/Blue Flat Illustrative Human Artificial Intelligence Technology Logo.png', 0.00, NULL),
-(19, 'user', '$2y$10$Y3S8bP/TCT/OhMeW/FhOR.zAVLzT2V4nIYLRrQds5FHalCQMnw9oW', 'employee', '88458854', 'gsdfgsd@gma.com', 'user', NULL, 0.00, NULL);
+(19, 'user', '$2y$10$Y3S8bP/TCT/OhMeW/FhOR.zAVLzT2V4nIYLRrQds5FHalCQMnw9oW', 'employee', '88458854', 'gsdfgsd@gma.com', 'user', NULL, 0.00, NULL),
+(20, 'user1', '$2y$10$dazDQ07S6WOxwDADWQZK0OOMOYlB/6qH3CXYfrA8zL8jCwwkLfPgG', 'employee', '99999999', 'ss@sss.com', 'o', NULL, 0.00, NULL);
 
 --
 -- Indexes for dumped tables
@@ -546,6 +570,14 @@ INSERT INTO `users` (`id`, `username`, `password`, `role`, `phone`, `email`, `em
 ALTER TABLE `attendance`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `booked_slots`
+--
+ALTER TABLE `booked_slots`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_booking_datetime` (`booking_datetime`),
+  ADD KEY `order_id` (`order_id`);
 
 --
 -- Indexes for table `car_washes`
@@ -645,6 +677,12 @@ ALTER TABLE `attendance`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=135;
 
 --
+-- AUTO_INCREMENT for table `booked_slots`
+--
+ALTER TABLE `booked_slots`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `car_washes`
 --
 ALTER TABLE `car_washes`
@@ -660,7 +698,7 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `client_cars`
 --
 ALTER TABLE `client_cars`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `coupons`
@@ -702,7 +740,7 @@ ALTER TABLE `messages`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=289;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=298;
 
 --
 -- AUTO_INCREMENT for table `services`
@@ -720,7 +758,7 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- Constraints for dumped tables
@@ -731,6 +769,12 @@ ALTER TABLE `users`
 --
 ALTER TABLE `attendance`
   ADD CONSTRAINT `attendance_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+--
+-- Constraints for table `booked_slots`
+--
+ALTER TABLE `booked_slots`
+  ADD CONSTRAINT `booked_slots_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `car_washes`
